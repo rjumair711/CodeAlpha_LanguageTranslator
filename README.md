@@ -17,6 +17,12 @@ library, so no API key or billing account is required.
 - **Swap** button to switch source and target languages (the translation moves into the input box)
 - **Copy** button on the translated text
 - **Text-to-speech**: listen to the translation in the app (for languages supported by gTTS)
+- **Backup translation service**: if Google Translate fails (for example when it rate-limits
+  your network), the app automatically retries with MyMemory, and a caption under the result
+  shows which service produced the translation
+- **Offline language detection**: when the backup service is used with Auto-detect, the source
+  language is detected on your computer with langdetect and shown in the caption
+  (e.g. "Detected: French · via MyMemory")
 - Two-column layout: input on the left, translation on the right
 - Friendly error messages for empty input, identical languages, no internet connection,
   unsupported languages, rate limits and other API failures
@@ -32,6 +38,8 @@ library, so no API key or billing account is required.
 | -------------- | ------------------------------------- |
 | User interface | Streamlit                             |
 | Translation    | deep-translator (`GoogleTranslator`)  |
+| Backup translation | deep-translator (`MyMemoryTranslator`) |
+| Offline language detection | langdetect                |
 | Text-to-speech | gTTS                                  |
 
 ## Setup
@@ -80,5 +88,20 @@ CodeAlpha_LanguageTranslator/
 ## Notes
 
 - An internet connection is required for translation and text-to-speech.
-- The app uses Google's free public endpoints, which are rate limited. If you see a
-  "Too many requests" message, wait a while or try a different network.
+- The app uses Google's free public endpoints, which are rate limited. When Google refuses a
+  request, the app falls back to [MyMemory](https://mymemory.translated.net/), which is also free
+  and needs no API key.
+
+### Limits of the backup service (MyMemory)
+
+MyMemory is only used when Google Translate fails, and it is more limited:
+
+- **Text length**: fewer than 500 characters per translation. Longer text shows a message
+  explaining the limit.
+- **No built-in auto-detect**: with **Auto-detect** selected, the app detects the language locally
+  with langdetect. Detection is only trusted for text of at least 20 characters with a confidence
+  of 90% or more; otherwise the app asks you to pick the source language in the "From" list.
+- **Fewer languages**: a few languages Google offers (e.g. Corsican) are not available.
+- **Quality**: MyMemory is a translation memory, so results, especially for short phrases, can be
+  less accurate than Google's.
+- **Daily quota**: free use is limited per day.
